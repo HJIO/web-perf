@@ -3,3 +3,4 @@ inspector
 service
 client
 **/.DS_Store
+env/nginx/ssl/ssl.*
