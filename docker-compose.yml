@@ -1,0 +1,45 @@
+version: '3'
+services: 
+  redis:
+    image: redis
+    expose:
+      - 6379
+    ports: 
+      - 6379:6379
+    networks: 
+      default:
+        aliases: 
+        - perf-data-staging
+  perf-data-staging:
+    build: ./data-staging/
+    depends_on: 
+      - redis
+      - perf-service
+    networks:
+      default:
+        aliases: 
+        - perf-service
+        - redis
+    environment: 
+      - REDIS_URL=redis
+    expose:
+      - 9000
+    command:
+      npm run start
+  perf-service:
+    build: ./
+    networks: 
+      default:
+        aliases: 
+         - perf-data-staging
+    volumes: 
+      - ~/mongodata:/data/db
+    expose:
+      - 80
+      - 443
+    ports: 
+      - 80:80
+      - 443:443
+    command: 
+      sh -c "mongod --fork --logpath /logs/mongo.log && service nginx start && python3 app.py"
+    

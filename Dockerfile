@@ -1,4 +1,4 @@
-FROM node:latest as builder
+FROM node:latest AS builder
 RUN npm install -g cnpm --registry=https://registry.npm.taobao.org
 
 COPY ./client /tmp
@@ -25,8 +25,8 @@ COPY ./env/py/requirements.txt /tmp
 RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -r /tmp/requirements.txt
 
 # copy ssl certificate and key
-RUN mkdir /etc/nginx/ssl
-COPY ./env/nginx/ssl /etc/nginx/ssl/
+RUN mkdir /app/ssl
+COPY ./env/ssl /app/ssl/
 
 # create nginx log directory and apply nginx configuration
 COPY ./env/nginx/site.conf /etc/nginx/sites-available/
@@ -40,7 +40,3 @@ RUN mkdir -p /data/db
 RUN mkdir /app/service
 WORKDIR /app/service
 COPY ./service/src .
-
-# Done
-EXPOSE 80 443
-CMD mongod --fork --logpath /logs/mongo.log && service nginx start && python3 app.py
